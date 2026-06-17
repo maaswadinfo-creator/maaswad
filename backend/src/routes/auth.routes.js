@@ -1,0 +1,14 @@
+import { Router } from 'express';
+import * as c from '../controllers/auth.controller.js';
+import { authenticate } from '../middleware/auth.js';
+import { authLimiter } from '../middleware/rateLimit.js';
+const r = Router();
+r.post('/otp/request', authLimiter, c.requestOtp);
+r.post('/otp/verify', authLimiter, c.verifyOtp);
+r.post('/firebase', authLimiter, c.firebaseLogin);
+r.post('/refresh', c.refresh);
+r.post('/logout', authenticate, c.logout);
+r.get('/me', authenticate, c.me);
+r.post('/switch-role', authenticate, c.switchRole);
+r.post('/become-customer', authenticate, c.ensureCustomerRole);
+export default r;

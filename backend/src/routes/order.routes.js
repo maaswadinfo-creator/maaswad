@@ -1,0 +1,13 @@
+import { Router } from 'express';
+import * as o from '../controllers/order.controller.js';
+import { authenticate } from '../middleware/auth.js';
+const r = Router();
+r.use(authenticate);
+r.post('/quote', o.quoteOrder);
+r.post('/checkout', o.checkout);
+r.post('/:id/pay', o.payOrder);
+r.get('/mine', o.myOrders);
+r.get('/:id', o.orderDetail);
+r.post('/:id/confirm', o.confirmDelivery);
+r.post('/:id/reorder', o.reorder);
+export default r;

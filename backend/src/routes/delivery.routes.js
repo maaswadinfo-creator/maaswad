@@ -1,0 +1,14 @@
+import { Router } from 'express';
+import * as d from '../controllers/delivery.controller.js';
+import { authenticate } from '../middleware/auth.js';
+import { authorize } from '../middleware/rbac.js';
+import { ROLES } from '../config/constants.js';
+const r = Router();
+r.post('/apply', authenticate, d.applyAsDelivery);
+r.use(authenticate, authorize(ROLES.DELIVERY));
+r.patch('/availability', d.setAvailability);
+r.get('/assigned', d.assignedOrders);
+r.patch('/orders/:id/status', d.updateDeliveryStatus);
+r.get('/earnings', d.earnings);
+r.get('/history', d.deliveryHistory);
+export default r;

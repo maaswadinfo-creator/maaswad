@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: maaswad-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    container_name: maaswad-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  backend:
+    build: ./backend
+    container_name: maaswad-backend
+    restart: unless-stopped
+    env_file: ./backend/.env
+    depends_on:
+      - mongo
+      - redis
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build: ./frontend
+    container_name: maaswad-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  mongo_data:
