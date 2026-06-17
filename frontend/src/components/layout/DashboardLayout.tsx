@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { Logo } from '@/components/Logo';
 
 export interface NavItem { to: string; label: string; icon: React.ComponentType<{ className?: string }>; }
 
@@ -11,8 +12,8 @@ export function DashboardLayout({ title, items }: { title: string; items: NavIte
     <div className="min-h-screen md:flex">
       <aside className="md:w-60 md:min-h-screen border-r border-slate-100 bg-white">
         <div className="p-4">
-          <div className="text-lg font-extrabold text-brand-700">Maaswad</div>
-          <div className="text-xs text-slate-400">{title}</div>
+          <Logo className="h-12 w-auto" />
+          <div className="mt-1 text-xs text-slate-400">{title}</div>
         </div>
         <nav className="flex md:flex-col gap-1 overflow-x-auto px-2 pb-2">
           {items.map((i) => (
@@ -28,7 +29,7 @@ export function DashboardLayout({ title, items }: { title: string; items: NavIte
           <button onClick={() => { logout(); nav('/'); }} className="btn-ghost text-sm"><LogOut className="h-4 w-4" /> Logout</button>
         </header>
         <main className="p-5"><Outlet /></main>
-        <footer className="px-5 py-4 text-center text-xs text-slate-400">Maaswad — Founded by Dr. Chef Vinoth</footer>
+        <footer className="px-5 py-4 text-center text-xs text-slate-400">Maaswad — An initiative by Dr. Chef Vinoth Kumar</footer>
       </div>
     </div>
   );

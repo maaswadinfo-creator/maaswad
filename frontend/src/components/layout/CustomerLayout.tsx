@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { ShoppingCart, User, Search, Home, Receipt, LogOut } from 'lucide-react';
 import { useCart } from '@/context/cartStore';
 import { useAuth } from '@/context/AuthContext';
+import { Logo } from '@/components/Logo';
 
 export function CustomerLayout() {
   const count = useCart((s) => s.count());
@@ -11,7 +12,7 @@ export function CustomerLayout() {
     <div className="min-h-screen pb-20">
       <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-brand-100">
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
-          <Link to="/" className="text-xl font-extrabold text-brand-700">Maaswad</Link>
+          <Logo className="h-11 w-auto" />
           <span className="hidden sm:block text-xs text-slate-400">Home Food, Made with Mother's Love</span>
           <div className="ml-auto flex items-center gap-2">
             <Link to="/cart" className="relative btn-ghost">

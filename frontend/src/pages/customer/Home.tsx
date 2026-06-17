@@ -33,6 +33,13 @@ export default function CustomerHome() {
           {!data?.length && <p className="col-span-full text-center text-slate-400">No dishes yet. Run the seed script.</p>}
         </div>
       )}
+
+      <div className="mt-8 flex items-center justify-center gap-3 rounded-2xl bg-white p-4 text-left shadow-sm">
+        <img src="/founder.jpg" alt="Dr. Chef Vinoth Kumar" className="h-12 w-12 rounded-full object-cover ring-2 ring-brand-100" />
+        <div className="text-xs text-slate-500">
+          An initiative by<br /><span className="text-sm font-semibold text-slate-700">Dr. Chef Vinoth Kumar</span>
+        </div>
+      </div>
     </div>
   );
 }

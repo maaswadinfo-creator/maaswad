@@ -68,8 +68,8 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="card w-full max-w-sm p-6">
-        <h1 className="text-2xl font-extrabold text-brand-700">Maaswad</h1>
-        <p className="mb-5 text-sm text-slate-500">Login or sign up to continue</p>
+        <img src="/logo.png" alt="Maaswad — Home Food" className="mx-auto mb-2 h-28 w-auto" />
+        <p className="mb-5 text-center text-sm text-slate-500">Login or sign up to continue</p>
 
         <div className="mb-4 flex rounded-xl bg-slate-100 p-1 text-sm">
           {(['phone', 'email'] as const).map((c) => (
@@ -92,7 +92,7 @@ export default function Login() {
         )}
 
         <div id="recaptcha-container" />
-        <p className="mt-6 text-center text-xs text-slate-400">Founded by Dr. Chef Vinoth</p>
+        <p className="mt-6 text-center text-xs text-slate-400">An initiative by Dr. Chef Vinoth Kumar</p>
       </div>
     </div>
   );
