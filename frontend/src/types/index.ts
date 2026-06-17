@@ -37,6 +37,10 @@ export interface Dish {
   quantityAvailable: number;
   foodType: 'veg' | 'non_veg' | 'vegan' | 'egg';
   preparationTimeMins: number;
+  servingSize?: string;
+  ingredients: string[];
+  allergens: string[];
+  availableDays?: string[];
   images: string[];
   tags: string[];
   rating: Rating;
