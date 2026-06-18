@@ -12,7 +12,7 @@ export function AppSplash() {
     <AnimatePresence>
       {show && (
         <motion.div
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-gradient-to-br from-brand-600 via-brand-500 to-amber-400"
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-gradient-to-br from-burgundy-700 via-burgundy-600 to-brand-600"
           initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
         >
           <motion.div

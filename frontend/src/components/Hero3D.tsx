@@ -42,25 +42,25 @@ export function Hero3D() {
   return (
     <div className="mb-6" style={{ perspective: 1200 }} onMouseMove={onMove} onMouseLeave={onLeave}>
       <motion.div
-        initial={{ opacity: 0, y: 24, rotateX: 12 }}
+        initial={{ opacity: 0, y: 20, rotateX: 10 }}
         animate={{ opacity: 1, y: 0, rotateX: 0 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         style={{ rotateX: rx, rotateY: ry, transformStyle: 'preserve-3d' }}
-        className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-brand-600 via-brand-500 to-amber-400 p-7 text-white shadow-lift sm:p-10"
+        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-burgundy-700 via-burgundy-600 to-brand-600 p-5 text-white shadow-lift sm:p-7"
       >
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_20%_0%,rgba(255,255,255,.35),transparent_60%)]" />
-        <motion.div className="pointer-events-none absolute -inset-x-10 -top-24 h-48 rotate-12 bg-white/20 blur-2xl"
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_85%_10%,rgba(216,153,58,.45),transparent_55%)]" />
+        <motion.div className="pointer-events-none absolute -inset-x-10 -top-20 h-40 rotate-12 bg-white/15 blur-2xl"
           animate={{ x: ['-20%', '120%'] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }} />
 
         {FLOATERS.map((f, i) => <Floater key={i} f={f} i={i} mx={mx} my={my} />)}
 
-        <div style={{ transform: 'translateZ(60px)' }} className="relative max-w-lg">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold backdrop-blur">
-            <Sparkles className="h-3.5 w-3.5" /> Made with a mother's love
+        <div style={{ transform: 'translateZ(50px)' }} className="relative max-w-md">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold backdrop-blur">
+            <Sparkles className="h-3 w-3" /> Made with a mother's love
           </span>
-          <h2 className="mt-3 text-3xl font-extrabold leading-tight sm:text-4xl">Authentic homemade food, near you</h2>
-          <p className="mt-2 text-sm text-white/90 sm:text-base">Verified home chefs · hygienic kitchens · real, traditional recipes</p>
-          <Link to="/search" className="mt-5 inline-flex rounded-full bg-white px-6 py-2.5 text-sm font-bold text-brand-700 shadow-soft transition hover:scale-105 active:scale-95">
+          <h2 className="mt-2.5 text-2xl font-extrabold leading-tight sm:text-3xl">Authentic homemade food, near you</h2>
+          <p className="mt-1.5 text-xs text-white/85 sm:text-sm">Verified home chefs · hygienic kitchens · traditional recipes</p>
+          <Link to="/search" className="mt-4 inline-flex rounded-full bg-white px-5 py-2 text-sm font-bold text-burgundy-700 shadow-soft transition hover:scale-105 active:scale-95">
             Explore dishes
           </Link>
         </div>

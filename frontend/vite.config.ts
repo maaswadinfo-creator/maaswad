@@ -13,8 +13,8 @@ export default defineConfig({
         name: 'Maaswad — Home Food',
         short_name: 'Maaswad',
         description: "Home Food, Made with Mother's Love",
-        theme_color: '#c2410c',
-        background_color: '#fff7ed',
+        theme_color: '#74222f',
+        background_color: '#f7efe1',
         display: 'standalone',
         start_url: '/',
         icons: [

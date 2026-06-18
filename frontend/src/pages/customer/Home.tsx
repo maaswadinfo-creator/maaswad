@@ -11,14 +11,14 @@ import { stagger, fadeUp } from '@/lib/motion';
 import type { Dish } from '@/types';
 
 const CATEGORIES = [
-  { label: 'Vegetarian', e: '🥗', g: 'from-green-400 to-emerald-500' },
-  { label: 'Traditional Foods', e: '🍲', g: 'from-orange-400 to-amber-500' },
-  { label: 'Festival Foods', e: '🪔', g: 'from-rose-400 to-pink-500' },
-  { label: 'Healthy Foods', e: '🥦', g: 'from-lime-400 to-green-500' },
-  { label: 'Kids Special', e: '🧒', g: 'from-sky-400 to-blue-500' },
-  { label: 'Protein Rich', e: '💪', g: 'from-violet-400 to-purple-500' },
-  { label: 'Millet Foods', e: '🌾', g: 'from-yellow-400 to-amber-500' },
-  { label: 'Diabetic Friendly', e: '🫛', g: 'from-teal-400 to-cyan-500' },
+  { label: 'Vegetarian', e: '🥗', g: 'from-brand-400 to-brand-600' },
+  { label: 'Traditional Foods', e: '🍲', g: 'from-burgundy-500 to-burgundy-700' },
+  { label: 'Festival Foods', e: '🪔', g: 'from-brand-500 to-burgundy-600' },
+  { label: 'Healthy Foods', e: '🥦', g: 'from-brand-500 to-brand-700' },
+  { label: 'Kids Special', e: '🧒', g: 'from-burgundy-400 to-burgundy-600' },
+  { label: 'Protein Rich', e: '💪', g: 'from-charcoal-700 to-charcoal-900' },
+  { label: 'Millet Foods', e: '🌾', g: 'from-brand-400 to-brand-700' },
+  { label: 'Diabetic Friendly', e: '🫛', g: 'from-burgundy-500 to-charcoal-800' },
 ];
 
 const STEPS = [
@@ -40,9 +40,9 @@ export default function CustomerHome() {
       {/* promo strip */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {[
-          { icon: Truck, t: 'Free delivery', d: 'On orders above ₹1000', g: 'from-brand-500 to-amber-500' },
-          { icon: Gift, t: 'Refer & earn', d: 'Invite friends, get credits', g: 'from-rose-500 to-pink-500' },
-          { icon: ShieldCheck, t: 'Verified kitchens', d: 'Hygiene-checked home chefs', g: 'from-emerald-500 to-teal-500' },
+          { icon: Truck, t: 'Free delivery', d: 'On orders above ₹1000', g: 'from-brand-500 to-brand-700' },
+          { icon: Gift, t: 'Refer & earn', d: 'Invite friends, get credits', g: 'from-burgundy-500 to-burgundy-700' },
+          { icon: ShieldCheck, t: 'Verified kitchens', d: 'Hygiene-checked home chefs', g: 'from-charcoal-700 to-charcoal-900' },
         ].map((p, i) => (
           <motion.div key={p.t} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
             className={`flex items-center gap-3 rounded-2xl bg-gradient-to-r ${p.g} p-4 text-white shadow-soft`}>

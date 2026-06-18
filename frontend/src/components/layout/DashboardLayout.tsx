@@ -15,8 +15,8 @@ export function DashboardLayout({ title, items }: { title: string; items: NavIte
     <div className="min-h-screen md:flex">
       <aside className="border-b border-slate-100 bg-white dark:border-white/5 dark:bg-ink-900 md:min-h-screen md:w-60 md:border-b-0 md:border-r">
         <div className="p-4">
-          <Logo className="h-12 w-auto" />
-          <div className="mt-1 text-xs text-slate-400">{title}</div>
+          <Logo iconClassName="h-11 w-11" />
+          <div className="mt-2 text-xs text-stone-400">{title}</div>
         </div>
         <nav className="flex gap-1 overflow-x-auto px-2 pb-2 md:flex-col">
           {items.map((i) => (

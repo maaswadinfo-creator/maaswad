@@ -21,25 +21,25 @@ export function CustomerLayout() {
   const nav = useNavigate();
   const loc = useLocation();
   return (
-    <div className="min-h-screen pb-20">
-      <header className="sticky top-0 z-20 border-b border-brand-100/70 bg-white/80 backdrop-blur-xl dark:border-white/5 dark:bg-ink-950/70">
-        <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
-          <Logo className="h-14 w-auto sm:h-16" />
-          <span className="hidden text-xs text-slate-400 sm:block">Home Food, Made with Mother's Love</span>
+    <div className="min-h-screen pb-24">
+      {/* slim, strong header */}
+      <header className="sticky top-0 z-30 border-b border-black/5 bg-cream/80 backdrop-blur-xl dark:border-white/5 dark:bg-charcoal-950/70">
+        <div className="mx-auto flex max-w-5xl items-center px-4 py-2">
+          <Logo iconClassName="h-12 w-12" />
           <div className="ml-auto flex items-center gap-1">
             <ThemeToggle />
-            <Link to="/cart" className="relative btn-ghost">
+            <Link to="/cart" className="relative btn-ghost !px-2.5">
               <ShoppingCart className="h-5 w-5" />
               {count > 0 && (
                 <motion.span key={count} initial={{ scale: 0.4, y: -4 }} animate={{ scale: 1, y: 0 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 18 }}
-                  className="absolute -right-1 -top-1 badge bg-brand-600 text-white">{count}</motion.span>
+                  className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-burgundy-600 px-1 text-[10px] font-bold text-white">{count}</motion.span>
               )}
             </Link>
             {user ? (
-              <button onClick={() => { logout(); nav('/'); }} className="btn-ghost"><LogOut className="h-5 w-5" /></button>
+              <button onClick={() => { logout(); nav('/'); }} className="btn-ghost !px-2.5"><LogOut className="h-5 w-5" /></button>
             ) : (
-              <Link to="/login" className="btn-primary">Login</Link>
+              <Link to="/login" className="btn-primary !py-2">Login</Link>
             )}
           </div>
         </div>
@@ -51,17 +51,21 @@ export function CustomerLayout() {
 
       <InstallPrompt />
 
-      <nav className="fixed bottom-0 inset-x-0 z-20 border-t border-brand-100 bg-white/90 backdrop-blur-xl dark:border-white/5 dark:bg-ink-950/80 sm:hidden">
-        <div className="mx-auto grid max-w-5xl grid-cols-4">
+      {/* glassmorphism floating bottom nav */}
+      <nav className="fixed inset-x-0 bottom-0 z-30 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:hidden">
+        <div className="mx-auto flex max-w-md items-center justify-around rounded-3xl border border-white/40 bg-white/60 p-1.5 shadow-lift backdrop-blur-2xl dark:border-white/10 dark:bg-charcoal-900/60">
           {NAV.map((i) => (
-            <NavLink key={i.to} to={i.to} end={i.to === '/'}
-              className={({ isActive }) => `relative flex flex-col items-center gap-1 py-2 text-xs transition-colors ${isActive ? 'text-brand-600' : 'text-slate-500 dark:text-slate-400'}`}>
+            <NavLink key={i.to} to={i.to} end={i.to === '/'} className="relative flex-1">
               {({ isActive }) => (
-                <>
-                  {isActive && <motion.span layoutId="navdot" className="absolute -top-px h-0.5 w-8 rounded-full bg-brand-500" />}
-                  <motion.span whileTap={{ scale: 0.85 }}><i.icon className="h-5 w-5" /></motion.span>
+                <motion.span whileTap={{ scale: 0.88 }}
+                  className={`relative flex flex-col items-center gap-0.5 rounded-2xl py-2 text-[11px] font-medium transition-colors ${isActive ? 'text-white' : 'text-charcoal-700 dark:text-stone-300'}`}>
+                  {isActive && (
+                    <motion.span layoutId="navpill" transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                      className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-b from-brand-500 to-brand-600 shadow-soft" />
+                  )}
+                  <i.icon className="h-5 w-5" />
                   {i.label}
-                </>
+                </motion.span>
               )}
             </NavLink>
           ))}
