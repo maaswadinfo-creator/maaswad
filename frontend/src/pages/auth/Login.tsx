@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
@@ -66,8 +67,9 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="card w-full max-w-sm p-6">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-brand-50 to-white px-4 dark:from-ink-950 dark:to-ink-900">
+      <motion.div initial={{ opacity: 0, y: 20, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }} className="card w-full max-w-sm p-6 shadow-lift">
         <img src="/logo.png" alt="Maaswad — Home Food" className="mx-auto mb-2 h-28 w-auto" />
         <p className="mb-5 text-center text-sm text-slate-500">Login or sign up to continue</p>
 
@@ -93,7 +95,7 @@ export default function Login() {
 
         <div id="recaptcha-container" />
         <p className="mt-6 text-center text-xs text-slate-400">An initiative by Dr. Chef Vinoth Kumar</p>
-      </div>
+      </motion.div>
     </div>
   );
 }

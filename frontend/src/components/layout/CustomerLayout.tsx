@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Logo } from '@/components/Logo';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { PageWrap } from '@/components/motion/PageWrap';
+import { InstallPrompt } from '@/components/InstallPrompt';
 
 const NAV = [
   { to: '/', icon: Home, label: 'Home' },
@@ -47,6 +48,8 @@ export function CustomerLayout() {
       <main className="mx-auto max-w-5xl px-4 py-5">
         <PageWrap key={loc.pathname}><Outlet /></PageWrap>
       </main>
+
+      <InstallPrompt />
 
       <nav className="fixed bottom-0 inset-x-0 z-20 border-t border-brand-100 bg-white/90 backdrop-blur-xl dark:border-white/5 dark:bg-ink-950/80 sm:hidden">
         <div className="mx-auto grid max-w-5xl grid-cols-4">

@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { motion } from 'framer-motion';
 import { api, getErrorMessage } from '@/lib/api';
 import { inr } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
+import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import { useCart } from '@/context/cartStore';
 import { celebrate } from '@/lib/confetti';
 import type { OrderPricing } from '@/types';
@@ -52,9 +54,27 @@ export default function Checkout() {
     } catch (e) { toast.error(getErrorMessage(e)); } finally { setPlacing(false); }
   };
 
+  const steps = ['Address', 'Bill', 'Pay'];
+  const activeStep = !address.line1 || !address.pincode ? 0 : pricing ? 2 : 1;
+
   return (
     <div className="mx-auto max-w-xl space-y-4">
       <h1 className="text-xl font-bold">Checkout</h1>
+
+      {/* progress stepper */}
+      <div className="flex items-center gap-2">
+        {steps.map((s, i) => (
+          <div key={s} className="flex flex-1 items-center gap-2">
+            <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-colors ${i <= activeStep ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-400 dark:bg-white/5'}`}>{i + 1}</div>
+            <span className={`text-xs ${i <= activeStep ? 'font-medium text-brand-700 dark:text-brand-300' : 'text-slate-400'}`}>{s}</span>
+            {i < steps.length - 1 && (
+              <div className="relative mx-1 h-0.5 flex-1 rounded bg-slate-100 dark:bg-white/10">
+                <motion.div className="absolute inset-y-0 left-0 rounded bg-brand-500" initial={{ width: 0 }} animate={{ width: i < activeStep ? '100%' : '0%' }} transition={{ duration: 0.4 }} />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
 
       <div className="card p-4">
         <h2 className="mb-2 font-semibold">Delivery Address</h2>
@@ -84,8 +104,8 @@ export default function Checkout() {
             <Row label="Delivery" value={pricing.deliveryCharge} />
             <Row label="Platform fee" value={pricing.platformFee} />
             {pricing.discounts > 0 && <Row label="Discount" value={-pricing.discounts} green />}
-            <div className="my-2 border-t border-dashed" />
-            <div className="flex justify-between font-bold text-brand-700"><span>To Pay</span><span>{inr(pricing.customerTotal)}</span></div>
+            <div className="my-2 border-t border-dashed border-slate-200 dark:border-white/10" />
+            <div className="flex justify-between font-bold text-brand-700 dark:text-brand-400"><span>To Pay</span><span>₹<AnimatedNumber value={pricing.customerTotal} /></span></div>
           </div>
         )}
       </div>
