@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { LayoutDashboard, UtensilsCrossed, ClipboardList, Bike, Users, Settings, Store, Receipt } from 'lucide-react';
+import { AppSplash } from './components/AppSplash';
 import { CustomerLayout } from './components/layout/CustomerLayout';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
@@ -50,6 +51,8 @@ const adminNav = [
 
 export default function App() {
   return (
+    <>
+    <AppSplash />
     <Routes>
       <Route path="/welcome" element={<Landing />} />
       <Route path="/login" element={<Login />} />
@@ -91,5 +94,6 @@ export default function App() {
 
       <Route path="*" element={<NotFound />} />
     </Routes>
+    </>
   );
 }
