@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform, type MotionValue } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
 
 const FLOATERS = [
   { e: '🍛', x: '6%', y: '18%', z: 90, s: 'text-5xl' },
@@ -46,22 +45,21 @@ export function Hero3D() {
         animate={{ opacity: 1, y: 0, rotateX: 0 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         style={{ rotateX: rx, rotateY: ry, transformStyle: 'preserve-3d' }}
-        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-burgundy-700 via-burgundy-600 to-brand-600 p-5 text-white shadow-lift sm:p-7"
+        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-burgundy-700 via-burgundy-600 to-brand-600 px-5 py-4 text-white shadow-lift sm:px-6 sm:py-5"
       >
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_85%_10%,rgba(216,153,58,.45),transparent_55%)]" />
-        <motion.div className="pointer-events-none absolute -inset-x-10 -top-20 h-40 rotate-12 bg-white/15 blur-2xl"
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_90%_at_88%_15%,rgba(216,153,58,.45),transparent_55%)]" />
+        <motion.div className="pointer-events-none absolute -inset-x-10 -top-16 h-32 rotate-12 bg-white/15 blur-2xl"
           animate={{ x: ['-20%', '120%'] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }} />
 
         {FLOATERS.map((f, i) => <Floater key={i} f={f} i={i} mx={mx} my={my} />)}
 
-        <div style={{ transform: 'translateZ(50px)' }} className="relative max-w-md">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold backdrop-blur">
-            <Sparkles className="h-3 w-3" /> Made with a mother's love
-          </span>
-          <h2 className="mt-2.5 text-2xl font-extrabold leading-tight sm:text-3xl">Authentic homemade food, near you</h2>
-          <p className="mt-1.5 text-xs text-white/85 sm:text-sm">Verified home chefs · hygienic kitchens · traditional recipes</p>
-          <Link to="/search" className="mt-4 inline-flex rounded-full bg-white px-5 py-2 text-sm font-bold text-burgundy-700 shadow-soft transition hover:scale-105 active:scale-95">
-            Explore dishes
+        <div style={{ transform: 'translateZ(50px)' }} className="relative flex max-w-md items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-extrabold leading-tight sm:text-2xl">Homemade food, near you</h2>
+            <p className="mt-1 text-xs text-white/85">Verified chefs · made with love</p>
+          </div>
+          <Link to="/search" className="shrink-0 rounded-full bg-white px-4 py-2 text-sm font-bold text-burgundy-700 shadow-soft transition hover:scale-105 active:scale-95">
+            Explore
           </Link>
         </div>
       </motion.div>

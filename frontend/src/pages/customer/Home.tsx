@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Truck, Gift, ShieldCheck, UtensilsCrossed, ChefHat, Soup } from 'lucide-react';
+import { Truck, Gift, ShieldCheck } from 'lucide-react';
 import { api } from '@/lib/api';
 import { DishCard } from '@/components/DishCard';
 import { DishGridSkeleton } from '@/components/ui/Skeleton';
@@ -11,64 +12,75 @@ import { stagger, fadeUp } from '@/lib/motion';
 import type { Dish } from '@/types';
 
 const CATEGORIES = [
-  { label: 'Vegetarian', e: '🥗', g: 'from-brand-400 to-brand-600' },
-  { label: 'Traditional Foods', e: '🍲', g: 'from-burgundy-500 to-burgundy-700' },
-  { label: 'Festival Foods', e: '🪔', g: 'from-brand-500 to-burgundy-600' },
-  { label: 'Healthy Foods', e: '🥦', g: 'from-brand-500 to-brand-700' },
-  { label: 'Kids Special', e: '🧒', g: 'from-burgundy-400 to-burgundy-600' },
-  { label: 'Protein Rich', e: '💪', g: 'from-charcoal-700 to-charcoal-900' },
-  { label: 'Millet Foods', e: '🌾', g: 'from-brand-400 to-brand-700' },
-  { label: 'Diabetic Friendly', e: '🫛', g: 'from-burgundy-500 to-charcoal-800' },
+  { label: 'Vegetarian', e: '🥗' }, { label: 'Traditional Foods', e: '🍲' },
+  { label: 'Festival Foods', e: '🪔' }, { label: 'Healthy Foods', e: '🥦' },
+  { label: 'Kids Special', e: '🧒' }, { label: 'Protein Rich', e: '💪' },
+  { label: 'Millet Foods', e: '🌾' }, { label: 'Biryani', e: '🍛' },
 ];
 
-const STEPS = [
-  { icon: UtensilsCrossed, t: 'Browse dishes', d: 'Explore home-cooked meals from verified chefs near you.' },
-  { icon: ChefHat, t: 'Chef cooks fresh', d: 'Your order is prepared fresh, with hygiene and love.' },
-  { icon: Soup, t: 'Delivered hot', d: 'Get authentic homemade food at your doorstep.' },
-];
+type Filter = 'all' | 'veg' | 'non_veg';
 
 export default function CustomerHome() {
+  const [filter, setFilter] = useState<Filter>('all');
   const { data, isLoading } = useQuery({
     queryKey: ['dishes', 'home'],
-    queryFn: async () => (await api.get('/catalog/dishes?limit=12')).data.data as Dish[],
+    queryFn: async () => (await api.get('/catalog/dishes?limit=16')).data.data as Dish[],
   });
 
+  const dishes = (data || []).filter((d) =>
+    filter === 'all' ? true : filter === 'veg' ? d.foodType === 'veg' || d.foodType === 'vegan' : d.foodType === 'non_veg' || d.foodType === 'egg'
+  );
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <Hero3D />
 
-      {/* promo strip */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        {[
-          { icon: Truck, t: 'Free delivery', d: 'On orders above ₹1000', g: 'from-brand-500 to-brand-700' },
-          { icon: Gift, t: 'Refer & earn', d: 'Invite friends, get credits', g: 'from-burgundy-500 to-burgundy-700' },
-          { icon: ShieldCheck, t: 'Verified kitchens', d: 'Hygiene-checked home chefs', g: 'from-charcoal-700 to-charcoal-900' },
-        ].map((p, i) => (
-          <motion.div key={p.t} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
-            className={`flex items-center gap-3 rounded-2xl bg-gradient-to-r ${p.g} p-4 text-white shadow-soft`}>
-            <p.icon className="h-7 w-7 shrink-0" />
-            <div><p className="text-sm font-bold leading-tight">{p.t}</p><p className="text-xs text-white/85">{p.d}</p></div>
+      {/* super filter: veg / non-veg */}
+      <div className="flex items-center gap-2">
+        {([
+          { v: 'all', label: 'All', dot: 'bg-charcoal-400' },
+          { v: 'veg', label: 'Pure Veg', dot: 'bg-green-600' },
+          { v: 'non_veg', label: 'Non-Veg', dot: 'bg-red-600' },
+        ] as const).map((o) => (
+          <button key={o.v} onClick={() => setFilter(o.v)}
+            className={`relative flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition ${
+              filter === o.v ? 'border-transparent text-white' : 'border-black/10 bg-white text-charcoal-700 dark:border-white/10 dark:bg-charcoal-900 dark:text-stone-200'
+            }`}>
+            {filter === o.v && <motion.span layoutId="filterpill" transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+              className="absolute inset-0 -z-10 rounded-full bg-gradient-to-b from-brand-500 to-brand-600" />}
+            <span className={`h-2 w-2 rounded-full ${o.dot} ${filter === o.v ? 'ring-2 ring-white/60' : ''}`} />
+            {o.label}
+          </button>
+        ))}
+      </div>
+
+      {/* small category circles */}
+      <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-1">
+        {CATEGORIES.map((c, i) => (
+          <motion.div key={c.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+            <Link to={`/search?category=${encodeURIComponent(c.label)}`} className="flex w-16 flex-col items-center gap-1.5">
+              <motion.span whileTap={{ scale: 0.9 }} whileHover={{ y: -3 }}
+                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-2xl shadow-soft dark:bg-charcoal-900">{c.e}</motion.span>
+              <span className="text-center text-[11px] font-medium leading-tight text-charcoal-700 dark:text-stone-300">{c.label}</span>
+            </Link>
           </motion.div>
         ))}
       </div>
 
-      {/* category tiles */}
-      <section>
-        <h3 className="mb-3 text-lg font-bold">Explore by category</h3>
-        <motion.div variants={stagger} initial="hidden" animate="show" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {CATEGORIES.map((c) => (
-            <motion.div key={c.label} variants={fadeUp} whileHover={{ y: -5, scale: 1.02 }}>
-              <Link to={`/search?category=${encodeURIComponent(c.label)}`}
-                className={`relative flex h-28 flex-col justify-end overflow-hidden rounded-2xl bg-gradient-to-br ${c.g} p-3 text-white shadow-soft`}>
-                <span className="absolute right-2 top-2 text-4xl drop-shadow-md">{c.e}</span>
-                <span className="text-sm font-bold leading-tight">{c.label}</span>
-              </Link>
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
+      {/* compact highlight strip */}
+      <div className="flex gap-2.5 overflow-x-auto pb-1 text-xs">
+        {[
+          { icon: Truck, t: 'Free delivery over ₹1000' },
+          { icon: Gift, t: 'Refer & earn credits' },
+          { icon: ShieldCheck, t: 'Hygiene-verified kitchens' },
+        ].map((p) => (
+          <span key={p.t} className="flex shrink-0 items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1.5 font-medium text-brand-700 dark:bg-brand-900/20 dark:text-brand-300">
+            <p.icon className="h-3.5 w-3.5" />{p.t}
+          </span>
+        ))}
+      </div>
 
-      {/* popular dishes */}
+      {/* dishes */}
       <section>
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-lg font-bold">Popular dishes</h3>
@@ -76,43 +88,26 @@ export default function CustomerHome() {
         </div>
         {isLoading ? (
           <DishGridSkeleton count={8} />
-        ) : data?.length ? (
+        ) : dishes.length ? (
           <motion.div variants={stagger} initial="hidden" animate="show" className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-            {data.map((d) => <DishCard key={d._id} dish={d} />)}
+            {dishes.map((d) => <DishCard key={d._id} dish={d} />)}
           </motion.div>
         ) : (
           <div className="card flex flex-col items-center gap-2 p-8 text-center">
             <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 3, repeat: Infinity }} className="text-5xl">🍽️</motion.div>
-            <p className="font-semibold">Fresh dishes coming soon</p>
-            <p className="max-w-sm text-sm text-slate-400">Our home chefs are getting their kitchens ready. Browse categories above in the meantime.</p>
+            <p className="font-semibold">{data?.length ? 'No dishes match this filter' : 'Fresh dishes coming soon'}</p>
+            <p className="max-w-sm text-sm text-stone-400">{data?.length ? 'Try a different filter or category.' : 'Our home chefs are getting their kitchens ready.'}</p>
           </div>
         )}
       </section>
 
-      {/* how it works */}
-      <section>
-        <h3 className="mb-3 text-lg font-bold">How Maaswad works</h3>
-        <div className="grid gap-3 sm:grid-cols-3">
-          {STEPS.map((s, i) => (
-            <Reveal key={s.t} delay={i * 0.1}>
-              <div className="card h-full p-5">
-                <div className="mb-3 inline-flex rounded-xl bg-brand-100 p-2.5 text-brand-600 dark:bg-brand-900/30 dark:text-brand-300"><s.icon className="h-5 w-5" /></div>
-                <p className="font-semibold">{i + 1}. {s.t}</p>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{s.d}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
       {/* founder */}
       <Reveal>
-        <div className="card flex items-center gap-4 p-5">
-          <img src="/founder.jpg" alt="Dr. Chef Vinoth Kumar" className="h-16 w-16 rounded-full object-cover ring-4 ring-brand-100 dark:ring-brand-900/40" />
+        <div className="card flex items-center gap-4 p-4">
+          <img src="/founder.jpg" alt="Dr. Chef Vinoth Kumar" className="h-14 w-14 rounded-full object-cover ring-4 ring-brand-100 dark:ring-brand-900/40" />
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-brand-600">An initiative by</div>
-            <p className="text-lg font-bold">Dr. Chef Vinoth Kumar</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Connecting home chefs with food lovers, made with a mother's love.</p>
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-brand-600">An initiative by</div>
+            <p className="font-bold">Dr. Chef Vinoth Kumar</p>
           </div>
         </div>
       </Reveal>
