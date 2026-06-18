@@ -4,10 +4,15 @@ import { motion } from 'framer-motion';
 import { api } from '@/lib/api';
 import { DishCard } from '@/components/DishCard';
 import { DishGridSkeleton } from '@/components/ui/Skeleton';
+import { Hero3D } from '@/components/Hero3D';
 import { stagger } from '@/lib/motion';
 import type { Dish } from '@/types';
 
-const CHIPS = ['Vegetarian', 'Healthy Foods', 'Traditional Foods', 'Festival Foods', 'Kids Special', 'Protein Rich'];
+const CHIPS = [
+  { label: 'Vegetarian', e: '🥗' }, { label: 'Healthy Foods', e: '🥦' },
+  { label: 'Traditional Foods', e: '🍲' }, { label: 'Festival Foods', e: '🪔' },
+  { label: 'Kids Special', e: '🧒' }, { label: 'Protein Rich', e: '💪' },
+];
 
 export default function CustomerHome() {
   const { data, isLoading } = useQuery({
@@ -17,20 +22,15 @@ export default function CustomerHome() {
 
   return (
     <div>
-      <motion.div
-        initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-        className="relative mb-6 overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 via-brand-500 to-amber-500 p-6 text-white shadow-lift">
-        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
-        <h2 className="relative text-2xl font-bold leading-tight">Authentic homemade food, near you</h2>
-        <p className="relative mt-1 text-sm text-white/85">Verified home chefs · hygienic kitchens · made with love</p>
-        <Link to="/search" className="relative mt-4 inline-flex rounded-full bg-white px-5 py-2 text-sm font-semibold text-brand-700 shadow-soft transition hover:scale-105">Explore dishes</Link>
-      </motion.div>
+      <Hero3D />
 
-      <div className="mb-6 flex gap-2 overflow-x-auto pb-1">
+      <div className="mb-6 flex gap-2.5 overflow-x-auto pb-1">
         {CHIPS.map((c, i) => (
-          <motion.div key={c} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
-            <Link to={`/search?category=${encodeURIComponent(c)}`}
-              className="badge whitespace-nowrap border border-brand-200 bg-white px-3.5 py-1.5 text-brand-700 transition hover:bg-brand-100 dark:border-white/10 dark:bg-ink-900 dark:text-brand-300">{c}</Link>
+          <motion.div key={c.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} whileHover={{ y: -3 }}>
+            <Link to={`/search?category=${encodeURIComponent(c.label)}`}
+              className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-brand-200 bg-white px-3.5 py-2 text-sm font-medium text-brand-700 shadow-soft transition hover:bg-brand-50 dark:border-white/10 dark:bg-ink-900 dark:text-brand-300">
+              <span className="text-base">{c.e}</span>{c.label}
+            </Link>
           </motion.div>
         ))}
       </div>

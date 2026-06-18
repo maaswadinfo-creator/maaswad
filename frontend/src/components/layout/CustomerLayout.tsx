@@ -24,7 +24,7 @@ export function CustomerLayout() {
     <div className="min-h-screen pb-20">
       <header className="sticky top-0 z-20 border-b border-brand-100/70 bg-white/80 backdrop-blur-xl dark:border-white/5 dark:bg-ink-950/70">
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
-          <Logo className="h-11 w-auto" />
+          <Logo className="h-14 w-auto sm:h-16" />
           <span className="hidden text-xs text-slate-400 sm:block">Home Food, Made with Mother's Love</span>
           <div className="ml-auto flex items-center gap-1">
             <ThemeToggle />
