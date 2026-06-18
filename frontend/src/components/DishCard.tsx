@@ -1,36 +1,59 @@
 import { Link } from 'react-router-dom';
-import { Star, Clock, Plus } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Star, Clock, Plus, Check } from 'lucide-react';
+import { useState } from 'react';
 import { inr } from '@/lib/cn';
 import { VegBadge } from '@/components/ui/VegBadge';
 import { useCart } from '@/context/cartStore';
+import { fadeUp } from '@/lib/motion';
 import type { Dish } from '@/types';
 import toast from 'react-hot-toast';
 
 export function DishCard({ dish }: { dish: Dish }) {
   const add = useCart((s) => s.add);
+  const [added, setAdded] = useState(false);
   const chefName = typeof dish.chef === 'object' ? dish.chef.fullName : '';
+
+  const onAdd = () => {
+    add(dish);
+    setAdded(true);
+    toast.success('Added to cart');
+    setTimeout(() => setAdded(false), 1100);
+  };
+
   return (
-    <div className="card overflow-hidden">
-      <Link to={`/dish/${dish._id}`} className="block aspect-[4/3] bg-brand-100">
-        {dish.images?.[0]
-          ? <img src={dish.images[0]} alt={dish.name} className="h-full w-full object-cover" />
-          : <div className="flex h-full items-center justify-center text-4xl">🍲</div>}
+    <motion.div
+      variants={fadeUp}
+      whileHover={{ y: -6 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+      className="card group overflow-hidden hover:shadow-lift"
+    >
+      <Link to={`/dish/${dish._id}`} className="block aspect-[4/3] overflow-hidden bg-brand-100 dark:bg-white/5">
+        {dish.images?.[0] ? (
+          <motion.img src={dish.images[0]} alt={dish.name}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+        ) : (
+          <div className="flex h-full items-center justify-center text-4xl transition-transform duration-500 group-hover:scale-110">🍲</div>
+        )}
       </Link>
       <div className="p-3">
         <div className="flex items-center gap-2">
           <VegBadge type={dish.foodType} />
-          <Link to={`/dish/${dish._id}`} className="font-semibold leading-tight line-clamp-1">{dish.name}</Link>
+          <Link to={`/dish/${dish._id}`} className="line-clamp-1 font-semibold leading-tight hover:text-brand-600">{dish.name}</Link>
         </div>
         {chefName && <p className="mt-0.5 text-xs text-slate-400">by {chefName}</p>}
-        <div className="mt-1 flex items-center gap-3 text-xs text-slate-500">
+        <div className="mt-1 flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
           <span className="flex items-center gap-1"><Star className="h-3 w-3 fill-amber-400 text-amber-400" />{dish.rating?.avg || 'New'}</span>
           <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{dish.preparationTimeMins}m</span>
         </div>
         <div className="mt-2 flex items-center justify-between">
-          <span className="font-bold text-brand-700">{inr(dish.displayedPrice)}</span>
-          <button onClick={() => { add(dish); toast.success('Added to cart'); }} className="btn-primary !px-3 !py-1.5 text-xs"><Plus className="h-3.5 w-3.5" />Add</button>
+          <span className="font-bold text-brand-700 dark:text-brand-400">{inr(dish.displayedPrice)}</span>
+          <motion.button onClick={onAdd} whileTap={{ scale: 0.9 }}
+            className={`btn !px-3 !py-1.5 text-xs ${added ? 'bg-green-600 text-white' : 'btn-primary'}`}>
+            {added ? <><Check className="h-3.5 w-3.5" />Added</> : <><Plus className="h-3.5 w-3.5" />Add</>}
+          </motion.button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -6,6 +6,7 @@ import { api, getErrorMessage } from '@/lib/api';
 import { inr } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
 import { useCart } from '@/context/cartStore';
+import { celebrate } from '@/lib/confetti';
 import type { OrderPricing } from '@/types';
 
 export default function Checkout() {
@@ -45,8 +46,9 @@ export default function Checkout() {
       // Dummy payment confirm
       await api.post(`/orders/${orderId}/pay`);
       clear();
+      celebrate();
       toast.success('Order placed!');
-      nav(`/orders/${orderId}`);
+      setTimeout(() => nav(`/orders/${orderId}`), 700);
     } catch (e) { toast.error(getErrorMessage(e)); } finally { setPlacing(false); }
   };
 
