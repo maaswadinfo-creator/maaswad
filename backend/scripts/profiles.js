@@ -8,7 +8,6 @@ import mongoose from 'mongoose';
 import config from '../src/config/index.js';
 import User from '../src/models/User.js';
 import HomeChef from '../src/models/HomeChef.js';
-import DeliveryPartner from '../src/models/DeliveryPartner.js';
 import { ROLES } from '../src/config/constants.js';
 import { nanoid } from '../src/utils/id.js';
 
@@ -16,7 +15,6 @@ const PROFILES = [
   { name: 'Super Admin', phone: '+919000000001', otp: '100001', roles: [ROLES.OWNER, ROLES.OPS, ROLES.CUSTOMER], active: ROLES.OWNER },
   { name: 'Admin',       phone: '+919000000002', otp: '100002', roles: [ROLES.OPS, ROLES.CUSTOMER], active: ROLES.OPS },
   { name: 'Demo Chef',   phone: '+919000000003', otp: '100003', roles: [ROLES.CHEF, ROLES.CUSTOMER], active: ROLES.CHEF, chef: true },
-  { name: 'Demo Rider',  phone: '+919000000005', otp: '100005', roles: [ROLES.DELIVERY, ROLES.CUSTOMER], active: ROLES.DELIVERY, delivery: true },
   { name: 'Demo User',   phone: '+919000000009', otp: '100009', roles: [ROLES.CUSTOMER], active: ROLES.CUSTOMER },
 ];
 
@@ -42,15 +40,6 @@ async function run() {
         location: { type: 'Point', coordinates: [76.9558, 11.0168] },
       });
       await chef.save();
-    }
-    if (p.delivery) {
-      let dp = await DeliveryPartner.findOne({ user: user._id });
-      if (!dp) dp = new DeliveryPartner({ user: user._id });
-      Object.assign(dp, {
-        name: p.name, mobile: p.phone, vehicleType: 'bike', status: 'active', isOnline: true,
-        approvedAt: new Date(), currentLocation: { type: 'Point', coordinates: [76.9558, 11.0168] },
-      });
-      await dp.save();
     }
   }
 

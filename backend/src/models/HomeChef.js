@@ -15,6 +15,9 @@ const homeChefSchema = new mongoose.Schema(
     kitchenPhotos: { type: [String], default: [] },
     bank: { accountName: String, accountNumber: { type: String, select: false }, ifsc: String },
     fssaiNumber: String,
+    certificateNumber: { type: String, uppercase: true, trim: true },
+    certificateUrl: String,
+    certificateVerified: { type: Boolean, default: false },
     cuisineSpecialization: { type: [String], default: [] },
     deliveryRadiusKm: { type: Number, default: 5 },
     availableTimings: { type: [String], default: [] }, // e.g. ["08:00-11:00","12:00-15:00"]

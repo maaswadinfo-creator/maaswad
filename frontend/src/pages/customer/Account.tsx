@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Gift, Store, Bike, Shield, Crown } from 'lucide-react';
+import { Gift, Store, Shield, Crown } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import type { Role } from '@/types';
@@ -9,7 +9,6 @@ const ROLE_LINKS: { role: Role; to: string; label: string; icon: any }[] = [
   { role: 'platform_owner', to: '/admin', label: 'Super Admin Console', icon: Crown },
   { role: 'operations_manager', to: '/admin', label: 'Admin Panel', icon: Shield },
   { role: 'home_chef', to: '/chef', label: 'Chef Dashboard', icon: Store },
-  { role: 'delivery_partner', to: '/delivery', label: 'Delivery Dashboard', icon: Bike },
 ];
 
 export default function Account() {

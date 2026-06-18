@@ -5,6 +5,10 @@ import { authorize } from '../middleware/rbac.js';
 import { ROLES } from '../config/constants.js';
 const r = Router();
 r.use(authenticate, authorize(ROLES.OWNER, ROLES.OPS));
+// Certificate registry (Super Admin / Owner only)
+r.get('/certificates', a.listCertificates);
+r.post('/certificates', authorize(ROLES.OWNER), a.addCertificate);
+r.delete('/certificates/:id', authorize(ROLES.OWNER), a.deleteCertificate);
 // Chef management
 r.get('/chefs', a.listChefs);
 r.patch('/chefs/:id/review', a.reviewChef);
@@ -19,7 +23,8 @@ r.get('/delivery-partners', a.listDeliveryPartners);
 r.patch('/delivery-partners/:id/review', a.reviewDeliveryPartner);
 // Orders
 r.get('/orders', a.listOrders);
-r.post('/orders/:id/assign', a.assignRider);
+r.post('/orders/:id/assign', a.assignRider); // legacy (in-house rider)
+r.post('/orders/:id/dispatch', a.dispatchOrder); // third-party delivery
 // Coupons
 r.get('/coupons', a.listCoupons);
 r.post('/coupons', a.createCoupon);

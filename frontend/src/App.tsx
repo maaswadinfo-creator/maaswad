@@ -23,9 +23,6 @@ import ChefDashboard from './pages/chef/ChefDashboard';
 import ChefDishes from './pages/chef/ChefDishes';
 import ChefOrders from './pages/chef/ChefOrders';
 
-import DeliveryDashboard from './pages/delivery/DeliveryDashboard';
-import DeliveryOrders from './pages/delivery/DeliveryOrders';
-
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminChefs from './pages/admin/AdminChefs';
 import AdminDishes from './pages/admin/AdminDishes';
@@ -36,10 +33,6 @@ const chefNav = [
   { to: '/chef', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/chef/dishes', label: 'My Dishes', icon: UtensilsCrossed },
   { to: '/chef/orders', label: 'Orders', icon: ClipboardList },
-];
-const deliveryNav = [
-  { to: '/delivery', label: 'Dashboard', icon: Bike },
-  { to: '/delivery/orders', label: 'Deliveries', icon: ClipboardList },
 ];
 const adminNav = [
   { to: '/admin', label: 'Overview', icon: LayoutDashboard },
@@ -75,12 +68,6 @@ export default function App() {
         <Route index element={<ChefDashboard />} />
         <Route path="dishes" element={<ChefDishes />} />
         <Route path="orders" element={<ChefOrders />} />
-      </Route>
-
-      {/* Delivery portal */}
-      <Route path="/delivery" element={<ProtectedRoute roles={['delivery_partner']}><DashboardLayout title="Delivery Partner" items={deliveryNav} /></ProtectedRoute>}>
-        <Route index element={<DeliveryDashboard />} />
-        <Route path="orders" element={<DeliveryOrders />} />
       </Route>
 
       {/* Admin / Owner portal */}

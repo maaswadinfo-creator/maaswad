@@ -10,16 +10,41 @@ import Review from '../models/Review.js';
 import Coupon from '../models/Coupon.js';
 import Settlement from '../models/Settlement.js';
 import AuditLog from '../models/AuditLog.js';
+import Certificate from '../models/Certificate.js';
 import { getSettings, updateSettings } from '../services/settings.service.js';
 import { processSettlementEligibility, buildChefSettlement } from '../services/settlement.service.js';
 import { notify } from '../services/notification.service.js';
 import { writeAudit } from '../middleware/audit.js';
 import { ROLES } from '../config/constants.js';
 
+// ===== Certificate registry (Super Admin) =====
+export const listCertificates = asyncHandler(async (_req, res) =>
+  ok(res, await Certificate.find().populate('claimedBy', 'fullName').sort('-createdAt')));
+export const addCertificate = asyncHandler(async (req, res) => {
+  const { number, holderName, note } = req.body;
+  if (!number) throw ApiError.badRequest('Certificate number required');
+  const cert = await Certificate.create({ number: number.toUpperCase().trim(), holderName, note });
+  await writeAudit(req, 'certificate.add', 'Certificate', cert._id, { number: cert.number });
+  ok(res, cert, 'Certificate added to registry');
+});
+export const deleteCertificate = asyncHandler(async (req, res) => {
+  await Certificate.findByIdAndDelete(req.params.id);
+  ok(res, null, 'Certificate removed');
+});
+
 // ===== Chef management =====
 export const listChefs = asyncHandler(async (req, res) => {
   const filter = req.query.status ? { status: req.query.status } : {};
-  ok(res, await HomeChef.find(filter).populate('user', 'name email phone').sort('-createdAt'));
+  const chefs = await HomeChef.find(filter).populate('user', 'name email phone').sort('-createdAt').lean();
+  // annotate each chef with whether their certificate number is in the registry
+  const numbers = chefs.map((c) => (c.certificateNumber || '').toUpperCase()).filter(Boolean);
+  const registry = await Certificate.find({ number: { $in: numbers } }).lean();
+  const byNumber = new Map(registry.map((r) => [r.number, r]));
+  const annotated = chefs.map((c) => {
+    const reg = c.certificateNumber ? byNumber.get(c.certificateNumber.toUpperCase()) : null;
+    return { ...c, certificateMatch: Boolean(reg), certificateRegistry: reg || null };
+  });
+  ok(res, annotated);
 });
 export const reviewChef = asyncHandler(async (req, res) => {
   const { action, reason } = req.body; // approve | reject | suspend | move_review
@@ -27,11 +52,25 @@ export const reviewChef = asyncHandler(async (req, res) => {
   if (!chef) throw ApiError.notFound('Chef not found');
   const map = { approve: 'approved', reject: 'rejected', suspend: 'suspended', move_review: 'operations_review' };
   if (!map[action]) throw ApiError.badRequest('Invalid action');
-  chef.status = map[action];
-  if (action === 'approve') { chef.approvedAt = new Date(); chef.status = 'active'; }
-  if (action === 'reject') chef.rejectionReason = reason;
+
+  if (action === 'approve') {
+    // Verify the certificate number against the registry before activating
+    const reg = chef.certificateNumber
+      ? await Certificate.findOne({ number: chef.certificateNumber.toUpperCase() })
+      : null;
+    if (!reg) throw ApiError.badRequest('Certificate number is not in the registry — cannot approve. Add it first or reject the application.');
+    reg.status = 'claimed';
+    reg.claimedBy = chef._id;
+    await reg.save();
+    chef.certificateVerified = true;
+    chef.approvedAt = new Date();
+    chef.status = 'active';
+  } else {
+    chef.status = map[action];
+    if (action === 'reject') chef.rejectionReason = reason;
+  }
   await chef.save();
-  await writeAudit(req, `chef.${action}`, 'HomeChef', chef._id, { reason });
+  await writeAudit(req, `chef.${action}`, 'HomeChef', chef._id, { reason, certificate: chef.certificateNumber });
   await notify({ user: chef.user._id, title: 'Chef application update', body: `Your application is now ${chef.status}`, type: 'system', channels: ['in_app', 'email'] });
   ok(res, chef, `Chef ${chef.status}`);
 });
@@ -65,7 +104,21 @@ export const suspendUser = asyncHandler(async (req, res) => {
   ok(res, u.toSafeJSON(), `User ${u.status}`);
 });
 
-// ===== Delivery partner management =====
+// ===== Third-party dispatch (no in-house riders) =====
+export const dispatchOrder = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id).populate('customer', '_id');
+  if (!order) throw ApiError.notFound('Order not found');
+  const { action } = req.body; // out_for_delivery | delivered
+  if (!['out_for_delivery', 'delivered'].includes(action)) throw ApiError.badRequest('Invalid action');
+  order.status = action;
+  order.timeline.push({ status: action, note: 'Third-party delivery' });
+  if (action === 'delivered') order.deliveredAt = new Date();
+  await order.save();
+  await notify({ user: order.customer._id, title: 'Delivery update', body: `Your order is ${action.replace(/_/g, ' ')}`, type: 'order', channels: ['in_app', 'push'] });
+  ok(res, order, `Order ${action.replace(/_/g, ' ')}`);
+});
+
+// ===== Delivery partner management (legacy — kept for data compatibility) =====
 export const listDeliveryPartners = asyncHandler(async (req, res) => {
   const filter = req.query.status ? { status: req.query.status } : {};
   ok(res, await DeliveryPartner.find(filter).populate('user', 'name email phone').sort('-createdAt'));
