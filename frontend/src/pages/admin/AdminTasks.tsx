@@ -140,7 +140,7 @@ function TaskCard({ task, isOwner, admins, qc }: { task: any; isOwner: boolean; 
             <div className="flex gap-2">
               <input className="input flex-1 text-sm" placeholder="Add a note…" value={note} onChange={(e) => setNote(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && submitNote()} />
-              <Button size="sm" onClick={submitNote} loading={update.isPending}>Add</Button>
+              <Button onClick={submitNote} loading={update.isPending}>Add</Button>
             </div>
           </div>
         </div>

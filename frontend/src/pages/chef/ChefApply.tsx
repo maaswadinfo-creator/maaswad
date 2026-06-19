@@ -191,7 +191,7 @@ export default function ChefApply() {
           </div>
         </div>
 
-        <Button className="w-full" size="lg" loading={loading} onClick={submit}>
+        <Button className="w-full" loading={loading} onClick={submit}>
           Submit Application
         </Button>
         <p className="text-center text-xs text-stone-400">
