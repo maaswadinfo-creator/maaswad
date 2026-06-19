@@ -1,6 +1,6 @@
 import asyncHandler from '../utils/asyncHandler.js';
 import ApiError from '../utils/ApiError.js';
-import { ok } from '../utils/apiResponse.js';
+import { ok, created } from '../utils/apiResponse.js';
 import HomeChef from '../models/HomeChef.js';
 import DeliveryPartner from '../models/DeliveryPartner.js';
 import Dish from '../models/Dish.js';
@@ -13,9 +13,53 @@ import AuditLog from '../models/AuditLog.js';
 import Certificate from '../models/Certificate.js';
 import { getSettings, updateSettings } from '../services/settings.service.js';
 import { processSettlementEligibility, buildChefSettlement } from '../services/settlement.service.js';
-import { notify } from '../services/notification.service.js';
+import { notify, sendEmail } from '../services/notification.service.js';
 import { writeAudit } from '../middleware/audit.js';
 import { ROLES } from '../config/constants.js';
+
+// ---- Helpers ----
+function generateCertNumber() {
+  const year = new Date().getFullYear();
+  const rand = Math.floor(10000 + Math.random() * 90000);
+  return `MWD-${year}-${rand}`;
+}
+
+function certEmailHtml({ chefName, certNumber, approvedDishes, adminName }) {
+  const dishesList = approvedDishes.map((d) => `<li style="padding:4px 0">${d}</li>`).join('');
+  return `
+<div style="font-family:Inter,system-ui,sans-serif;max-width:600px;margin:auto;background:#fffbf7">
+  <div style="background:linear-gradient(135deg,#c2410c,#9a3412);color:#fff;padding:32px 36px;border-radius:16px 16px 0 0;text-align:center">
+    <div style="font-size:28px;font-weight:800;letter-spacing:-0.5px">Maaswad</div>
+    <div style="opacity:.85;font-size:13px;margin-top:4px">Home Food, Made with Mother's Love</div>
+  </div>
+  <div style="border:2px solid #fed7aa;border-top:0;padding:36px;border-radius:0 0 16px 16px;background:#fff">
+    <h2 style="color:#9a3412;margin-top:0;font-size:22px">🎉 Congratulations, ${chefName}!</h2>
+    <p style="color:#44403c;line-height:1.7">
+      We are delighted to welcome you to the <strong>Maaswad Home Chef Community</strong>.
+      After reviewing your application, we are pleased to issue your official chef certificate.
+    </p>
+    <div style="background:#fff7ed;border:2px solid #fed7aa;border-radius:12px;padding:24px;margin:24px 0;text-align:center">
+      <div style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:#9a3412;font-weight:600">Maaswad Chef Certificate</div>
+      <div style="font-size:32px;font-weight:800;letter-spacing:4px;color:#c2410c;margin:12px 0;font-family:monospace">${certNumber}</div>
+      <div style="font-size:13px;color:#78716c">This is your unique certificate number. Keep it safe.</div>
+    </div>
+    <h3 style="color:#44403c;font-size:16px">Approved Cuisine Specializations</h3>
+    <ul style="color:#44403c;line-height:1.8;padding-left:20px">${dishesList}</ul>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;margin:24px 0">
+      <strong style="color:#166534">Next Step:</strong>
+      <span style="color:#15803d"> Log in to the Maaswad app, go to your Chef Profile, and upload this certificate to activate your account.</span>
+    </div>
+    <p style="color:#78716c;font-size:13px">
+      Verified by <strong>${adminName || 'Maaswad Admin'}</strong><br/>
+      ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+    </p>
+    <p style="color:#a8a29e;font-size:12px;margin-top:32px;border-top:1px solid #fde8d8;padding-top:16px">
+      Maaswad — Founded by Dr. Chef Vinoth Kumar<br/>
+      Questions? Reply to this email or contact us at support@maaswad.in
+    </p>
+  </div>
+</div>`;
+}
 
 // ===== Certificate registry (Super Admin) =====
 export const listCertificates = asyncHandler(async (_req, res) =>
@@ -73,6 +117,98 @@ export const reviewChef = asyncHandler(async (req, res) => {
   await writeAudit(req, `chef.${action}`, 'HomeChef', chef._id, { reason, certificate: chef.certificateNumber });
   await notify({ user: chef.user._id, title: 'Chef application update', body: `Your application is now ${chef.status}`, type: 'system', channels: ['in_app', 'email'] });
   ok(res, chef, `Chef ${chef.status}`);
+});
+
+// POST /admin/chefs/:id/assign-mentor
+export const assignMentor = asyncHandler(async (req, res) => {
+  const chef = await HomeChef.findById(req.params.id);
+  if (!chef) throw ApiError.notFound('Chef not found');
+  const mentor = await HomeChef.findById(req.body.mentorId);
+  if (!mentor) throw ApiError.notFound('Mentor chef not found');
+  chef.mentorChef = mentor._id;
+  if (chef.status === 'applied') chef.status = 'under_review';
+  await chef.save();
+  await writeAudit(req, 'chef.mentor_assigned', 'HomeChef', chef._id, { mentor: mentor._id });
+  ok(res, chef, 'Mentor assigned');
+});
+
+// POST /admin/chefs/:id/generate-certificate
+export const generateChefCertificate = asyncHandler(async (req, res) => {
+  const { approvedDishes } = req.body;
+  if (!approvedDishes?.length) throw ApiError.badRequest('Select at least one approved dish/cuisine');
+  const chef = await HomeChef.findById(req.params.id).populate('user', 'email name phone');
+  if (!chef) throw ApiError.notFound('Chef not found');
+  const certNumber = generateCertNumber();
+  chef.generatedCertNumber = certNumber;
+  chef.approvedDishes = approvedDishes;
+  chef.status = 'pending_certificate';
+  chef.certEmailSentAt = new Date();
+  await chef.save();
+
+  // Send certificate email
+  const email = chef.user?.email || chef.email;
+  const adminUser = await User.findById(req.user._id).select('name');
+  if (email) {
+    await sendEmail({
+      to: email,
+      subject: `Your Maaswad Chef Certificate — ${certNumber}`,
+      html: certEmailHtml({ chefName: chef.fullName || chef.user?.name || 'Chef', certNumber, approvedDishes, adminName: adminUser?.name }),
+    });
+  }
+  await writeAudit(req, 'chef.certificate_generated', 'HomeChef', chef._id, { certNumber, approvedDishes });
+  ok(res, chef, `Certificate ${certNumber} generated and emailed to ${email || 'chef'}`);
+});
+
+// PATCH /admin/chefs/:id/final-approve  — after chef uploads their certificate
+export const finalApproveChef = asyncHandler(async (req, res) => {
+  const chef = await HomeChef.findById(req.params.id).populate('user', '_id email');
+  if (!chef) throw ApiError.notFound('Chef not found');
+  if (chef.status !== 'certificate_uploaded') throw ApiError.badRequest('Chef has not uploaded their certificate yet');
+  chef.certificateVerified = true;
+  chef.approvedAt = new Date();
+  chef.status = 'active';
+  await chef.save();
+  await writeAudit(req, 'chef.final_approved', 'HomeChef', chef._id);
+  await notify({ user: chef.user._id, title: '🎉 You are now a Maaswad Chef!', body: 'Your account is active. Start listing your delicious dishes!', type: 'system', channels: ['in_app', 'email'] });
+  ok(res, chef, 'Chef activated');
+});
+
+// ===== Admin user management =====
+export const listAdminUsers = asyncHandler(async (_req, res) => {
+  const users = await User.find({ roles: { $in: [ROLES.OWNER, ROLES.OPS] } }).select('name email phone roles status createdAt').sort('-createdAt');
+  ok(res, users);
+});
+
+export const addAdminUser = asyncHandler(async (req, res) => {
+  const { phone, role } = req.body;
+  if (!phone) throw ApiError.badRequest('Phone number required');
+  const grantRole = role === 'platform_owner' ? ROLES.OWNER : ROLES.OPS;
+  let user = await User.findOne({ phone });
+  if (!user) {
+    // Create a placeholder user — they'll complete login via OTP
+    user = await User.create({ phone, roles: [ROLES.CUSTOMER, grantRole], activeRole: grantRole });
+  } else {
+    if (!user.roles.includes(grantRole)) user.roles.push(grantRole);
+    await user.save();
+  }
+  await writeAudit(req, 'user.grant_admin', 'User', user._id, { role: grantRole, phone });
+  ok(res, user.toSafeJSON(), `${grantRole} role granted to ${phone}`);
+});
+
+export const removeAdminUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (!user) throw ApiError.notFound('User not found');
+  user.roles = user.roles.filter((r) => r !== ROLES.OWNER && r !== ROLES.OPS);
+  if (!user.roles.length) user.roles = [ROLES.CUSTOMER];
+  if (!user.roles.includes(user.activeRole)) user.activeRole = user.roles[0];
+  await user.save();
+  await writeAudit(req, 'user.revoke_admin', 'User', user._id);
+  ok(res, null, 'Admin role removed');
+});
+
+// ===== Active chef list (for mentor selection) =====
+export const listActiveChefs = asyncHandler(async (_req, res) => {
+  ok(res, await HomeChef.find({ status: 'active' }).select('fullName cuisineSpecialization profilePhoto').lean());
 });
 
 // ===== Dish management =====

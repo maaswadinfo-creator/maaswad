@@ -1,9 +1,11 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { LayoutDashboard, UtensilsCrossed, ClipboardList, Bike, Users, Settings, Store, Receipt } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import { LayoutDashboard, UtensilsCrossed, ClipboardList, Users, Settings, Store, Receipt, BarChart2 } from 'lucide-react';
 import { AppSplash } from './components/AppSplash';
 import { CustomerLayout } from './components/layout/CustomerLayout';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
+import { api } from './lib/api';
 
 import Landing from './pages/Landing';
 import Login from './pages/auth/Login';
@@ -28,24 +30,52 @@ import AdminChefs from './pages/admin/AdminChefs';
 import AdminDishes from './pages/admin/AdminDishes';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminTasks from './pages/admin/AdminTasks';
+
+// Generate or retrieve a stable anonymous session ID for unique visitor counting
+function getSessionId() {
+  const key = 'mw_sid';
+  let sid = localStorage.getItem(key);
+  if (!sid) { sid = Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem(key, sid); }
+  return sid;
+}
+
+// Fire-and-forget page view tracker
+function usePageTracking() {
+  const location = useLocation();
+  const lastPath = useRef('');
+  useEffect(() => {
+    if (location.pathname === lastPath.current) return;
+    lastPath.current = location.pathname;
+    // Skip admin/chef internal pages to avoid noise — track only public + landing
+    api.post('/analytics/pageview', {
+      path: location.pathname,
+      sessionId: getSessionId(),
+      referrer: document.referrer || null,
+    }).catch(() => { /* silent */ });
+  }, [location.pathname]);
+}
 
 const chefNav = [
   { to: '/chef', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/chef/dishes', label: 'My Dishes', icon: UtensilsCrossed },
   { to: '/chef/orders', label: 'Orders', icon: ClipboardList },
 ];
+
 const adminNav = [
   { to: '/admin', label: 'Overview', icon: LayoutDashboard },
   { to: '/admin/chefs', label: 'Chefs', icon: Store },
   { to: '/admin/dishes', label: 'Dishes', icon: UtensilsCrossed },
   { to: '/admin/orders', label: 'Orders', icon: Receipt },
+  { to: '/admin/tasks', label: 'Tasks', icon: ClipboardList },
+  { to: '/admin/users', label: 'Admin Users', icon: Users },
   { to: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 
-export default function App() {
+function AppRoutes() {
+  usePageTracking();
   return (
-    <>
-    <AppSplash />
     <Routes>
       <Route path="/welcome" element={<Landing />} />
       <Route path="/login" element={<Login />} />
@@ -60,7 +90,7 @@ export default function App() {
         <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
         <Route path="/orders/:id" element={<ProtectedRoute><OrderTracking /></ProtectedRoute>} />
         <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
-        <Route path="/become-chef" element={<ProtectedRoute><ChefApply /></ProtectedRoute>} />
+        <Route path="/become-chef" element={<ChefApply />} />
       </Route>
 
       {/* Chef portal */}
@@ -76,11 +106,21 @@ export default function App() {
         <Route path="chefs" element={<AdminChefs />} />
         <Route path="dishes" element={<AdminDishes />} />
         <Route path="orders" element={<AdminOrders />} />
+        <Route path="tasks" element={<AdminTasks />} />
+        <Route path="users" element={<AdminUsers />} />
         <Route path="settings" element={<AdminSettings />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />
     </Routes>
+  );
+}
+
+export default function App() {
+  return (
+    <>
+      <AppSplash />
+      <AppRoutes />
     </>
   );
 }

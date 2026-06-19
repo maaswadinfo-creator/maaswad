@@ -14,7 +14,19 @@ const homeChefSchema = new mongoose.Schema(
     kitchenAddress: { line1: String, city: String, state: String, pincode: String },
     kitchenPhotos: { type: [String], default: [] },
     bank: { accountName: String, accountNumber: { type: String, select: false }, ifsc: String },
+    // Application fields
+    yearsOfExperience: { type: Number, default: 0 },
+    previousExperience: String,
+    fssaiAvailable: { type: Boolean, default: false },
     fssaiNumber: String,
+    identityProofUrl: String,
+    // Mentor assigned by admin
+    mentorChef: { type: mongoose.Schema.Types.ObjectId, ref: 'HomeChef' },
+    // Certificate generated & issued by admin
+    approvedDishes: { type: [String], default: [] },
+    generatedCertNumber: { type: String, uppercase: true, trim: true },
+    certEmailSentAt: Date,
+    // Chef-uploaded certificate (after receiving email)
     certificateNumber: { type: String, uppercase: true, trim: true },
     certificateUrl: String,
     certificateVerified: { type: Boolean, default: false },

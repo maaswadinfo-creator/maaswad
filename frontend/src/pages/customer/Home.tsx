@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Truck, Gift, ShieldCheck } from 'lucide-react';
+import { Truck, Gift, ShieldCheck, ChefHat, ArrowRight } from 'lucide-react';
 import { api } from '@/lib/api';
 import { DishCard } from '@/components/DishCard';
 import { DishGridSkeleton } from '@/components/ui/Skeleton';
@@ -100,6 +100,35 @@ export default function CustomerHome() {
           </div>
         )}
       </section>
+
+      {/* Become a Chef banner */}
+      <Reveal>
+        <Link to="/become-chef">
+          <motion.div
+            whileHover={{ scale: 1.01 }}
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-brand-600 to-burgundy-700 p-5 text-white shadow-lg"
+          >
+            <div className="relative z-10 flex items-center justify-between">
+              <div>
+                <div className="mb-1 text-xs font-semibold uppercase tracking-widest opacity-80">Join Us</div>
+                <h3 className="text-lg font-bold">Love to cook? Become a Chef</h3>
+                <p className="mt-1 max-w-xs text-sm opacity-80">
+                  Share your home-cooked recipes with thousands of food lovers and earn from your kitchen.
+                </p>
+              </div>
+              <div className="flex flex-col items-center gap-2 ml-4 shrink-0">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20">
+                  <ChefHat className="h-8 w-8 text-white" />
+                </div>
+                <span className="flex items-center gap-1 text-xs font-semibold opacity-90">Apply <ArrowRight className="h-3 w-3" /></span>
+              </div>
+            </div>
+            {/* decorative blobs */}
+            <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10" />
+            <div className="absolute -bottom-4 left-1/3 h-16 w-16 rounded-full bg-white/5" />
+          </motion.div>
+        </Link>
+      </Reveal>
 
       {/* founder */}
       <Reveal>

@@ -7,6 +7,7 @@ import { authorize } from '../middleware/rbac.js';
 import { ROLES } from '../config/constants.js';
 const r = Router();
 r.post('/apply', authenticate, c.applyAsChef);
+r.patch('/me/certificate', authenticate, authorize(ROLES.CHEF), c.uploadMyCertificate);
 r.use(authenticate, authorize(ROLES.CHEF));
 r.get('/me', c.myChefProfile);
 r.patch('/me', c.updateMyChefProfile);

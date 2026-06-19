@@ -8,7 +8,7 @@ export const ROLES = {
 
 export const ROLE_LIST = Object.values(ROLES);
 
-export const CHEF_STATUS = ['applied', 'verification_pending', 'operations_review', 'approved', 'active', 'suspended', 'rejected'];
+export const CHEF_STATUS = ['applied', 'under_review', 'pending_certificate', 'certificate_uploaded', 'approved', 'active', 'suspended', 'rejected'];
 export const DELIVERY_STATUS = ['applied', 'verification', 'approved', 'active', 'suspended', 'rejected'];
 export const DISH_STATUS = ['created', 'pending_approval', 'admin_review', 'approved', 'published', 'paused', 'rejected'];
 

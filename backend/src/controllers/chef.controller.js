@@ -20,10 +20,39 @@ const getMyChef = async (req) => {
 export const applyAsChef = asyncHandler(async (req, res) => {
   const existing = await HomeChef.findOne({ user: req.user._id });
   if (existing) throw ApiError.conflict('Application already exists');
-  const chef = await HomeChef.create({ user: req.user._id, ...req.body, status: 'applied' });
+  const {
+    fullName, mobile, email, address,
+    cuisineSpecialization, yearsOfExperience, previousExperience,
+    fssaiAvailable, fssaiNumber, identityProofUrl, profilePhoto,
+  } = req.body;
+  const chef = await HomeChef.create({
+    user: req.user._id,
+    fullName, mobile, email, address,
+    cuisineSpecialization: Array.isArray(cuisineSpecialization) ? cuisineSpecialization : (cuisineSpecialization || '').split(',').map((s) => s.trim()).filter(Boolean),
+    yearsOfExperience: yearsOfExperience || 0,
+    previousExperience,
+    fssaiAvailable: Boolean(fssaiAvailable),
+    fssaiNumber,
+    identityProofUrl,
+    profilePhoto,
+    status: 'applied',
+  });
   if (!req.user.roles.includes(ROLES.CHEF)) { req.user.roles.push(ROLES.CHEF); await req.user.save(); }
   await writeAudit(req, 'chef.apply', 'HomeChef', chef._id);
   created(res, chef, 'Application submitted');
+});
+
+// PATCH /chefs/me/certificate  — chef uploads the certificate they received via email
+export const uploadMyCertificate = asyncHandler(async (req, res) => {
+  const chef = await getMyChef(req);
+  if (chef.status !== 'pending_certificate') throw ApiError.badRequest('No certificate request pending');
+  const { certificateUrl } = req.body;
+  if (!certificateUrl) throw ApiError.badRequest('Certificate URL required');
+  chef.certificateUrl = certificateUrl;
+  chef.status = 'certificate_uploaded';
+  await chef.save();
+  await writeAudit(req, 'chef.certificate_upload', 'HomeChef', chef._id);
+  ok(res, chef, 'Certificate uploaded — admin will verify and activate your account');
 });
 
 // GET /chefs/me

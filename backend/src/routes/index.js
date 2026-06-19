@@ -8,6 +8,7 @@ import reviewRoutes from './review.routes.js';
 import customerRoutes from './customer.routes.js';
 import adminRoutes from './admin.routes.js';
 import uploadRoutes from './upload.routes.js';
+import analyticsRoutes from './analytics.routes.js';
 
 const router = Router();
 router.use('/auth', authRoutes);
@@ -19,4 +20,5 @@ router.use('/reviews', reviewRoutes);
 router.use('/me', customerRoutes);
 router.use('/admin', adminRoutes);
 router.use('/uploads', uploadRoutes);
+router.use('/analytics', analyticsRoutes);
 export default router;
