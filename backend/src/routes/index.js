@@ -7,6 +7,7 @@ import deliveryRoutes from './delivery.routes.js';
 import reviewRoutes from './review.routes.js';
 import customerRoutes from './customer.routes.js';
 import adminRoutes from './admin.routes.js';
+import adminChefRoutes from './adminChef.routes.js';
 import uploadRoutes from './upload.routes.js';
 import analyticsRoutes from './analytics.routes.js';
 
@@ -19,6 +20,7 @@ router.use('/delivery', deliveryRoutes);
 router.use('/reviews', reviewRoutes);
 router.use('/me', customerRoutes);
 router.use('/admin', adminRoutes);
+router.use('/admin-chef', adminChefRoutes);
 router.use('/uploads', uploadRoutes);
 router.use('/analytics', analyticsRoutes);
 export default router;

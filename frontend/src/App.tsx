@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { LayoutDashboard, UtensilsCrossed, ClipboardList, Users, Settings, Store, Receipt, BarChart2 } from 'lucide-react';
+import { LayoutDashboard, UtensilsCrossed, ClipboardList, Users, Settings, Store, Receipt, ChefHat, Calendar } from 'lucide-react';
 import { AppSplash } from './components/AppSplash';
 import { CustomerLayout } from './components/layout/CustomerLayout';
 import { DashboardLayout } from './components/layout/DashboardLayout';
@@ -32,6 +32,9 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminTasks from './pages/admin/AdminTasks';
+import AdminChefProfiles from './pages/admin/AdminChefProfiles';
+import AdminVisits from './pages/admin/AdminVisits';
+import EvalChefDashboard from './pages/evalchef/EvalChefDashboard';
 
 // Generate or retrieve a stable anonymous session ID for unique visitor counting
 function getSessionId() {
@@ -65,12 +68,18 @@ const chefNav = [
 
 const adminNav = [
   { to: '/admin', label: 'Overview', icon: LayoutDashboard },
-  { to: '/admin/chefs', label: 'Chefs', icon: Store },
+  { to: '/admin/chefs', label: 'Chef Applications', icon: Store },
+  { to: '/admin/chef-evaluators', label: 'Master Chefs', icon: ChefHat },
+  { to: '/admin/visits', label: 'Home Visits', icon: Calendar },
   { to: '/admin/dishes', label: 'Dishes', icon: UtensilsCrossed },
   { to: '/admin/orders', label: 'Orders', icon: Receipt },
   { to: '/admin/tasks', label: 'Tasks', icon: ClipboardList },
   { to: '/admin/users', label: 'Admin Users', icon: Users },
   { to: '/admin/settings', label: 'Settings', icon: Settings },
+];
+
+const evalChefNav = [
+  { to: '/eval', label: 'My Visits', icon: Calendar },
 ];
 
 function AppRoutes() {
@@ -104,11 +113,18 @@ function AppRoutes() {
       <Route path="/admin" element={<ProtectedRoute roles={['platform_owner', 'operations_manager']}><DashboardLayout title="Admin Console" items={adminNav} /></ProtectedRoute>}>
         <Route index element={<AdminDashboard />} />
         <Route path="chefs" element={<AdminChefs />} />
+        <Route path="chef-evaluators" element={<AdminChefProfiles />} />
+        <Route path="visits" element={<AdminVisits />} />
         <Route path="dishes" element={<AdminDishes />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="tasks" element={<AdminTasks />} />
         <Route path="users" element={<AdminUsers />} />
         <Route path="settings" element={<AdminSettings />} />
+      </Route>
+
+      {/* Master Chef Evaluator portal */}
+      <Route path="/eval" element={<ProtectedRoute roles={['admin_chef']}><DashboardLayout title="Evaluator Portal" items={evalChefNav} /></ProtectedRoute>}>
+        <Route index element={<EvalChefDashboard />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />

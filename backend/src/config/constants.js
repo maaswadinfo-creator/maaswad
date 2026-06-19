@@ -1,6 +1,7 @@
 export const ROLES = {
   OWNER: 'platform_owner',
   OPS: 'operations_manager',
+  EVAL_CHEF: 'admin_chef',      // master chef who evaluates home chef applicants
   DELIVERY: 'delivery_partner',
   CHEF: 'home_chef',
   CUSTOMER: 'food_lover',

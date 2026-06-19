@@ -1,4 +1,4 @@
-export type Role = 'platform_owner' | 'operations_manager' | 'delivery_partner' | 'home_chef' | 'food_lover';
+export type Role = 'platform_owner' | 'operations_manager' | 'admin_chef' | 'delivery_partner' | 'home_chef' | 'food_lover';
 
 export interface User {
   _id: string;
